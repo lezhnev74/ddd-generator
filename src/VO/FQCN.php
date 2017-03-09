@@ -42,6 +42,26 @@ final class FQCN
     }
     
     /**
+     * toPSR4File
+     * Ref: http://www.php-fig.org/psr/psr-4/
+     *
+     *
+     * @param $base_fqcn will be excluded from final path
+     *
+     * @return string
+     */
+    public function toPSR4File($base_fqcn = ""): string
+    {
+        $fqcn = str_replace($base_fqcn, "", $this->getFqcn());
+        $path = str_replace("\\", "/", $fqcn) . ".php";
+        if($path[0] == "/") {
+            $path = substr($path, 1);
+        }
+        
+        return $path;
+    }
+    
+    /**
      * fromString - will replace multiple, ending slashes
      *
      *
