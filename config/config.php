@@ -3,10 +3,12 @@
 return [
     // Where generated tests go
     "test_dir" => null,
+    // This is a prefix for all namespaces in tests
+    "base_test_fqn" => "",
     // This is the prefix fold all folder paths if they are not absolute
     "base_dir" => null,
     // This is a prefix for all namespaces
-    "base_fqn" => "\\",
+    "base_fqn" => "",
     // Directories for layers
     "layers" => [
         "app" => [
@@ -20,7 +22,7 @@ return [
         ],
     ],
     // config for individual things
-    "subjects" => [
+    "primitives" => [
         // each thing has unique key
         "command" => [
             // alias is for using in short syntax, like `<tool> gac ...`
