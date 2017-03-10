@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class /*<NAME>*/Test extends TestCase {
     
-    function test_it_works() {
+    function test_command_validates_input() {
         $this->markAsIncomplete();
     }
     

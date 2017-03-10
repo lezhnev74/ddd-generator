@@ -45,18 +45,15 @@ final class Generator
         string $test_dir,
         FQCN $base_qcn,
         FQCN $test_qcn,
-        string $layer_app_dir,
-        string $layer_domain_dir,
-        string $layer_infrastructure_dir,
         array $primitives
     ) {
         $this->src_dir                  = $src_dir;
         $this->test_dir                 = $test_dir;
         $this->base_qcn                 = $base_qcn;
         $this->test_qcn                 = $test_qcn;
-        $this->layer_app_dir            = $layer_app_dir;
-        $this->layer_domain_dir         = $layer_domain_dir;
-        $this->layer_infrastructure_dir = $layer_infrastructure_dir;
+        $this->layer_app_dir            = "app";
+        $this->layer_domain_dir         = "domain";
+        $this->layer_infrastructure_dir = "infrastructure";
         $this->primitives               = $primitives;
         
         $this->validate();
@@ -103,9 +100,7 @@ final class Generator
                                       "/*<NAME>*/" => $qcn->getLastPart(),
                                   ]);
         
-        $this->generateStubs($primitive, $layer, $qcn);
-        
-        return [];
+        return $this->generateStubs($primitive, $layer, $qcn);
     }
     
     
@@ -117,28 +112,42 @@ final class Generator
      * @param string    $layer
      * @param FQCN      $qcn
      *
-     * @return void
+     * @return array
      */
-    private function generateStubs($primitive, $layer, $qcn): void
+    private function generateStubs($primitive, $layer, $qcn): array
     {
+        $new_files = [];
+        
         //
         // 0. Layer relative path
         //
         $property   = "layer_{$layer}_dir";
         $layer_path = $this->$property;
         
+        $put_in_file = function($target_path, $source_file): void {
+            @mkdir(dirname($target_path), 0775, true);
+            $content = $this->replacePlaceholdersInText(file_get_contents($source_file));
+            file_put_contents($target_path, $content);
+        };
+        
         //
         // 1. SRC stubs
         //
-        foreach($primitive->getSrcStubs() as $stub) {
+        foreach($primitive->getSrcStubs() as $filename => $stub) {
+            
+            $filename = $this->replacePlaceholdersInText($filename);
+            if(!preg_match("#\\.php$#", $filename)) {
+                $filename .= ".php";
+            }
+            
             $target_path = $this->src_dir
                            . DIRECTORY_SEPARATOR . $layer_path
                            . DIRECTORY_SEPARATOR . $primitive->getSrcDir()
                            . DIRECTORY_SEPARATOR . $qcn->getBasePart()
-                           . DIRECTORY_SEPARATOR . $this->generateFileNameForStub($stub);
+                           . DIRECTORY_SEPARATOR . $filename;
             
-            @mkdir(dirname($target_path),0775,true);
-            file_put_contents($target_path, $this->replacePlaceholdersInText(file_get_contents($stub)));
+            $put_in_file($target_path, $stub);
+            $new_files[] = $target_path;
             
         }
         
@@ -146,47 +155,24 @@ final class Generator
         //
         // 2. TEST stubs
         //
-        foreach($primitive->getTestStubs() as $stub) {
+        foreach($primitive->getTestStubs() as $filename => $stub) {
+            
+            $filename = $this->replacePlaceholdersInText($filename);
+            if(!preg_match("#\\.php$#", $filename)) {
+                $filename .= ".php";
+            }
+            
             $target_path = $this->test_dir
                            . DIRECTORY_SEPARATOR . $layer_path
                            . DIRECTORY_SEPARATOR . $primitive->getTestDir()
                            . DIRECTORY_SEPARATOR . $qcn->getBasePart()
-                           . DIRECTORY_SEPARATOR . $this->generateFileNameForStub($stub);
-    
+                           . DIRECTORY_SEPARATOR . $filename;
             
-            @mkdir(dirname($target_path),0775,true);
-            file_put_contents($target_path, $this->replacePlaceholdersInText(file_get_contents($stub)));
-            
-        }
-    }
-    
-    /**
-     * generateFileNameForStub will detect Filename directive within stub file and generate final name
-     *
-     *
-     * @param string $stub_path
-     *
-     * @return string
-     */
-    private function generateFileNameForStub(string $stub_path): string
-    {
-        if(!is_file($stub_path)) {
-            throw new \Exception("Stub file not found at " . $stub_path);
-        }
-        $stub_content = file_get_contents($stub_path);
-        
-        // Replace all known placeholders
-        $stub_content = $this->replacePlaceholdersInText($stub_content);
-        
-        if(!preg_match("#^\#Filename:([a-z_][a-z_81]+(\.php)?)#im", $stub_content, $p)) {
-            throw new \Exception("Stub file has no #Filename: directive or it is invalid at " . $stub_path);
+            $put_in_file($target_path, $stub);
+            $new_files[] = $target_path;
         }
         
-        if(!preg_match("#\\.php$#", $p[1])) {
-            $p[1] .= ".php";
-        }
-        
-        return $p[1];
+        return $new_files;
     }
     
     /**

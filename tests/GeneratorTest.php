@@ -30,12 +30,17 @@ class GeneratorTest extends TestCase
         $primitive_name = "command";
         $name           = "Some/ClassName";
         
-        $generator->generate($layer, $primitive_name, FQCN::fromString($name));
+        $output = $generator->generate($layer, $primitive_name, FQCN::fromString($name));
         
-        $this->assertFileExists($config['src_dir'] . "/" . $layer . "/Command/Some/ClassNameCommand.php");
-        $this->assertFileExists($config['src_dir'] . "/" . $layer . "/Command/Some/ClassNameHandler.php");
-        $this->assertFileExists($config['test_dir'] . "/" . $layer . "/Command/Some/ClassNameCommandTest.php");
+        $this->assertEquals([
+                                $config['src_dir'] . "/" . $layer . "/Command/Some/ClassNameCommand.php",
+                                $config['src_dir'] . "/" . $layer . "/Command/Some/ClassNameHandler.php",
+                                $config['test_dir'] . "/" . $layer . "/Command/Some/ClassNameCommandTest.php",
+                            ], $output);
         
+        foreach($output as $file) {
+            $this->assertFileExists($file);
+        }
         
     }
     
@@ -47,30 +52,21 @@ class GeneratorTest extends TestCase
             "base_test_qcn" => "\\App\\Tests",
             "src_dir" => __DIR__ . "/resources/tmp/src",
             "base_qcn" => "\\App",
-            "layers" => [
-                "app" => [
-                    "dir" => "app",
-                ],
-                "domain" => [
-                    "dir" => "domain",
-                ],
-                "infrastructure" => [
-                    "dir" => "infrastructure",
-                ],
-            ],
             "primitives" => [
                 "command" => [
                     "alias" => "c",
                     "src" => [
                         "dir" => "Command",
                         "stubs" => [
-                            __DIR__ . "/resources/stubs/SampleStub.stub.php",
-                            __DIR__ . "/resources/stubs/Sample2Stub.stub.php",
+                            "/*<NAME>*/Command" => __DIR__ . "/resources/stubs/SampleStub.stub.php",
+                            "/*<NAME>*/Handler.php" => __DIR__ . "/resources/stubs/Sample2Stub.stub.php",
                         ],
                     ],
                     "test" => [
                         "dir" => "Command",
-                        "stubs" => [__DIR__ . "/resources/stubs/SampleTestStub.stub.php"],
+                        "stubs" => [
+                            "/*<NAME>*/CommandTest" => __DIR__ . "/resources/stubs/SampleTestStub.stub.php",
+                        ],
                     ],
                 
                 ],
@@ -90,9 +86,6 @@ class GeneratorTest extends TestCase
             $config['test_dir'],
             new FQCN($config['base_qcn']),
             new FQCN($config['base_test_qcn']),
-            $config['layers']['app']['dir'],
-            $config['layers']['domain']['dir'],
-            $config['layers']['infrastructure']['dir'],
             $primitives
         );
         

@@ -17,12 +17,10 @@ When developing in a clean and decoupled way, you have to deal with many OO inte
 * QueryBus: request, response and handler
 * VO and Entity
 * Event
+* anything else
 
 Each class is complimented with empty test so I can keep TDD-ing.
  
-## Configuration
-This tool will generate different types of primitives in given folders, and test folders. There is a stub folder with templates for new files which can be tweaked as well.
-
 ## Usage
 ```
 #Comman API
@@ -57,7 +55,9 @@ This tool will generate different types of primitives in given folders, and test
 ```
 
 ## Config
-You can set folders where new files will go to
+You can set folders where new files will go to.
+You can configure each primitive - set its alias and set stubs to generate new files from.
+
 
 ```php
 $config = [
@@ -69,18 +69,6 @@ $config = [
   "base_dir" => null,
   // This is a prefix for all namespaces
   "base_fqn" => "",
-  // Directories for layers
-  "layers" => [
-      "app" => [
-          "dir" => "app",
-      ],
-      "domain" => [
-          "dir" => "domain",
-      ],
-      "infrastructure" => [
-          "dir" => "infrastructure",
-      ],
-  ],
   // config for individual things
   "primitives" => [
       // each thing has unique key
@@ -91,11 +79,13 @@ $config = [
           // each layer must have a config, otherwise it won't let generation happen
           "src" => [
               "dir" => "Command",
-              "stubs" => [""], // full paths to stubs
+              "stubs" => [
+                "/*<NAME>*/Command" => "...path to stub" // final file name => stub file, see tempaltes for palceholders
+              ], // full paths to stubs
           ],
           "test" => [
               "dir" => "Command",
-              "stubs" => [""], // full paths to stubs
+              "stubs" => [...], // full paths to stubs
           ],
       
       ],
@@ -114,21 +104,3 @@ Template support few placeholders which reflects user input:
 * `/*<PRIMITIVE>*/` - f.e. `event` or `command`
 * `/*<NAMESPACED_NAME>*/` - looks like `Account\SignUp`
 * `/*<NAME>*/` f.e. `SignedUp`
-
-**Filenames**
-
-Each stub must have a directive `#Filename:` which dictates what filename should be used for this file.
-For example, command primitive has at least two stubs for command and for handler classes which look like this:
-```php
-#stub for command
-<?php
-#Filename:/*<NAME>*/Command
-#...
-
-#stub for handler
-<?php
-#Filename:/*<NAME>*/Handler
-#...
-```
-
-
