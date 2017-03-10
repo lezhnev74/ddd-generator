@@ -9,6 +9,8 @@ When developing in a clean and decoupled way, you have to deal with many OO inte
 **Note:** I use PSR-4 so any folder inheritance leads to namespace inheritance. And also type of slashes is irrelevant - \ and / will do the same.
 
 **Note:** This tool is designed to be extensible. So while it contains packs to generate widely used primitives like commands, there can be easily added packs to generate http controllers (+tests) and views and anything else. Basically this is just a tool to generate something withing a given application layer and compliment it with the empty test.
+
+**Note:** No Windows support in mind.
  
 ## What it can generate
 * CommandBus: command and handler classes
@@ -59,22 +61,46 @@ You can set folders where new files will go to
 
 ```php
 $config = [
-    // FQCN to prepend before any name
-    "base_FQCN" => 'App',
-    "primitives" => [
-        // key is <primitive> from tool's API
-        "event" => [
-            "src" => [
-                "folder" => ".../domain",
-                "templates" => ["...stubs/event.stub.php"]
-            ]
-            "test" => [
-                "folder" => ".../tests/domain",
-                "templates" => ["...stubs/event.test.stub.php"]
-            ],
-            "alias" => "e"            
-        ]
-    ]
+  // Where generated tests go
+  "test_dir" => null,
+  // This is a prefix for all namespaces in tests
+  "base_test_fqn" => "",
+  // This is the prefix fold all folder paths if they are not absolute
+  "base_dir" => null,
+  // This is a prefix for all namespaces
+  "base_fqn" => "",
+  // Directories for layers
+  "layers" => [
+      "app" => [
+          "dir" => "app",
+      ],
+      "domain" => [
+          "dir" => "domain",
+      ],
+      "infrastructure" => [
+          "dir" => "infrastructure",
+      ],
+  ],
+  // config for individual things
+  "primitives" => [
+      // each thing has unique key
+      "command" => [
+          // alias is for using in short syntax, like `<tool> gac ...`
+          "alias" => "c",
+          
+          // each layer must have a config, otherwise it won't let generation happen
+          "src" => [
+              "dir" => "Command",
+              "stubs" => [""], // full paths to stubs
+          ],
+          "test" => [
+              "dir" => "Command",
+              "stubs" => [""], // full paths to stubs
+          ],
+      
+      ],
+      // ... any other primitive
+  ],
 ];
 ```
 
@@ -83,10 +109,26 @@ Each primitive can have multiple templates. F.e. command has command and handler
  
 Template support few placeholders which reflects user input:
 * `/*<BASE_NAMESPACE>*/` - looks like `\App`
-* `/*<BASE_TEST_NAMESPACE>*/` - looks like `\App\Tests`
-* `/*<NAMESPACED_NAME>*/` - looks like `Account\SignUp` 
-* `/*<APP_LAYER>*/` - app or domain or infrastructure
+* `/*<BASE_TEST_NAMESPACE>*/` - looks like `\App\Tests` 
+* `/*<LAYER>*/` - app or domain or infrastructure
 * `/*<PRIMITIVE>*/` - f.e. `event` or `command`
+* `/*<NAMESPACED_NAME>*/` - looks like `Account\SignUp`
 * `/*<NAME>*/` f.e. `SignedUp`
+
+**Filenames**
+
+Each stub must have a directive `#Filename:` which dictates what filename should be used for this file.
+For example, command primitive has at least two stubs for command and for handler classes which look like this:
+```php
+#stub for command
+<?php
+#Filename:/*<NAME>*/Command
+#...
+
+#stub for handler
+<?php
+#Filename:/*<NAME>*/Handler
+#...
+```
 
 

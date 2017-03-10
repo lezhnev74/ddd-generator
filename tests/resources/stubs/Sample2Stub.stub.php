@@ -1,9 +1,9 @@
 <?php
-#Filename:/*<NAME>*/Command
+#Filename:/*<NAME>*/Handler.php
 declare(strict_types = 1);
 
 namespace /*<BASE_NAMESPACE>*/\/*<NAMESPACED_NAME>*/;
 
-class /*<NAME>*/Command {
+class /*<NAME>*/Handler {
     
 }

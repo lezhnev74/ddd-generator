@@ -62,6 +62,35 @@ final class FQCN
     }
     
     /**
+     * getLastPart - return only last block from namespace
+     *
+     *
+     * @return string
+     */
+    public function getLastPart(): string
+    {
+        preg_match("#[^\\\\]+$#", $this->getFqcn(), $p);
+        
+        return $p[0];
+    }
+    
+    /**
+     * getLastPart - return base namespace without trailing part
+     *
+     *
+     * @return string
+     */
+    public function getBasePart(): string
+    {
+        $string = str_replace($this->getLastPart(), "", $this->getFqcn());
+        if($string[ -1 ] == "\\") {
+            $string = substr($string, 0, -1);
+        }
+        
+        return $string;
+    }
+    
+    /**
      * fromString - will replace multiple, ending slashes
      *
      *

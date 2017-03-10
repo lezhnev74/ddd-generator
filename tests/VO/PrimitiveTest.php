@@ -56,6 +56,7 @@ class PrimitiveTest extends TestCase
         $this->assertEquals($config["src"]["stubs"], $primitive->getSrcStubs());
         $this->assertEquals($config["test"]["dir"], $primitive->getTestDir());
         $this->assertEquals($config["test"]["stubs"], $primitive->getTestStubs());
+        $this->assertEquals("command", $primitive->getName());
     }
     
     function test_it_validates_config()

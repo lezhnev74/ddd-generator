@@ -75,4 +75,17 @@ class FQCNTest extends TestCase
         $this->assertEquals("namespaced/Object.php", $fqcn->toPSR4File($base_fqcn));
     }
     
+    function test_it_can_get_last_part_of_name()
+    {
+        $fqcn = new FQCN("\\Some\\namespaced\\Object");
+        
+        $this->assertEquals("Object", $fqcn->getLastPart());
+    }
+    
+    function test_it_can_get_qcn_with_no_last_part()
+    {
+        $fqcn = FQCN::fromString("/Some/namespaced\\Object");
+        
+        $this->assertEquals("\\Some\\namespaced", $fqcn->getBasePart());
+    }
 }

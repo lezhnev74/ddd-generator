@@ -1,24 +1,24 @@
 <?php
 
 return [
-    // Where generated tests go
+    // Where all generated tests go to
     "test_dir" => null,
     // This is a prefix for all namespaces in tests
-    "base_test_fqn" => "",
-    // This is the prefix fold all folder paths if they are not absolute
-    "base_dir" => null,
+    "base_test_qcn" => "",
+    // Where all generated sources go to
+    "src_dir" => null,
     // This is a prefix for all namespaces
-    "base_fqn" => "",
+    "base_qcn" => "",
     // Directories for layers
     "layers" => [
         "app" => [
-            "dir" => "app",
+            "dir" => "app", // relative path
         ],
         "domain" => [
-            "dir" => "domain",
+            "dir" => "domain", // relative path
         ],
         "infrastructure" => [
-            "dir" => "infrastructure",
+            "dir" => "infrastructure", // relative path
         ],
     ],
     // config for individual things
@@ -31,14 +31,17 @@ return [
             // each layer must have a config, otherwise it won't let generation happen
             "src" => [
                 "dir" => "Command",
-                "stubs" => [""],
+                "stubs" => [
+                    "/*<NAME>*/Command" => "...path to stub"
+                ], // full paths to stubs
             ],
             "test" => [
                 "dir" => "Command",
-                "stubs" => [""],
+                "stubs" => [""], // full paths to stubs
             ],
         
         ],
+        // ... any other primitive
     ],
 ];
 
