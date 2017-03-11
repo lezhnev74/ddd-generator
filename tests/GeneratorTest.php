@@ -29,22 +29,21 @@ class GeneratorTest extends TestCase
         // Make API call
         $layer          = "app";
         $primitive_name = "command";
-        $name           = "Some/ClassName";
+        $name           = "Some/Command/ClassName";
         
         $output = $generator->generate($layer, $primitive_name, FQCN::fromString($name));
         
         $this->assertEquals([
-                                $config['src_dir'] . "/" . $layer . "/Command/Some/ClassNameCommand.php",
-                                $config['src_dir'] . "/" . $layer . "/Command/Some/ClassNameHandler.php",
-                                $config['test_dir'] . "/" . $layer . "/Command/Some/ClassNameCommandTest.php",
+                                $config['src_dir'] . "/" . $layer . "/Some/Command/ClassName/ClassNameCommand.php" => __DIR__ . "/resources/stubs/SimpleStub.stub.php",
+                                $config['src_dir'] . "/" . $layer . "/Some/Command/ClassName/ClassNameHandler.php" => __DIR__ . "/resources/stubs/SimpleStub.stub.php",
+                                $config['test_dir'] . "/" . $layer . "/Some/Command/ClassName/ClassNameCommandTest.php" => __DIR__ . "/resources/stubs/SimpleTestStub.stub.php",
                             ], $output);
         
-        foreach($output as $file) {
+        foreach($output as $file => $stub) {
             $this->assertFileExists($file);
         }
         
     }
-    
     
     private function seed_config()
     {
@@ -70,16 +69,14 @@ class GeneratorTest extends TestCase
                 "command" => [
                     "alias" => "c",
                     "src" => [
-                        "dir" => "Command",
                         "stubs" => [
-                            "/*<NAME>*/Command" => __DIR__ . "/resources/stubs/SampleStub.stub.php",
-                            "/*<NAME>*/Handler.php" => __DIR__ . "/resources/stubs/Sample2Stub.stub.php",
+                            "/*<PSR4_NAMESPACE_LAST>*/Command" => __DIR__ . "/resources/stubs/SimpleStub.stub.php",
+                            "/*<PSR4_NAMESPACE_LAST>*/Handler.php" => __DIR__ . "/resources/stubs/SimpleStub.stub.php",
                         ],
                     ],
                     "test" => [
-                        "dir" => "Command",
                         "stubs" => [
-                            "/*<NAME>*/CommandTest" => __DIR__ . "/resources/stubs/SampleTestStub.stub.php",
+                            "/*<PSR4_NAMESPACE_LAST>*/CommandTest" => __DIR__ . "/resources/stubs/SimpleTestStub.stub.php",
                         ],
                     ],
                 
@@ -125,9 +122,7 @@ class GeneratorTest extends TestCase
             $primitives[] = new Primitive(
                 $name,
                 $primitive_config['alias'],
-                $primitive_config['src']['dir'],
                 $primitive_config['src']['stubs'],
-                $primitive_config['test']['dir'],
                 $primitive_config['test']['stubs']
             );
         }

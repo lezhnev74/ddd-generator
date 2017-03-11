@@ -47,10 +47,24 @@ final class Generator
         $this->primitives = $primitives;
         
         $this->validate();
-        $this->updatePlaceholders([
-                                      "/*<BASE_TEST_NAMESPACE>*/" => $test_qcn->getFqcn(),
-                                  ]);
     }
+    
+    /**
+     * @return string
+     */
+    public function getSrcDir(): string
+    {
+        return $this->src_dir;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getTestDir(): string
+    {
+        return $this->test_dir;
+    }
+    
     
     private
     function validate()
@@ -71,7 +85,7 @@ final class Generator
      * Generate command will generate files from stubs and put them to target folders
      *
      *
-     * @param string $layer          f.e. app or infrastructure
+     * @param string $layer_name     f.e. app or infrastructure
      * @param string $primitive_name f.e. event
      * @param FQCN   $qcn            f.e. Some/Namespaced/Name
      *
@@ -84,19 +98,45 @@ final class Generator
         FQCN $qcn
     ): array {
         
+        $generated_stubs = $this->generateDry($layer_name, $primitive_name, $qcn);
+        foreach($generated_stubs as $target_path => $stub_file) {
+            $this->writeStubs($target_path, $stub_file);
+        }
+        
+        return $generated_stubs;
+    }
+    
+    /**
+     * generateDry - prepare map of new final files to source stubs
+     *
+     * @param string $layer_name     f.e. app or infrastructure
+     * @param string $primitive_name f.e. event
+     * @param FQCN   $qcn            f.e. Some/Namespaced/Name
+     *
+     * @return array
+     */
+    public function generateDry($layer_name, $primitive_name, FQCN $qcn): array
+    {
         $primitive = $this->getPrimitiveByName($primitive_name);
         $layer     = $this->getLayerByName($layer_name);
         
         $this->updatePlaceholders(
             [
+                // default for given layer
+                "/*<BASE_TEST_NAMESPACE>*/" => $this->test_qcn->append($layer->getDir())->getFqcn(),
+                "/*<BASE_SRC_NAMESPACE>*/" => $layer->getBaseFqcn()->getFqcn(),
+                
                 "/*<LAYER>*/" => $layer->getName(),
                 "/*<PRIMITIVE>*/" => $primitive_name,
-                "/*<NAMESPACED_NAME>*/" => $qcn->getFqcn(),
-                "/*<NAME>*/" => $qcn->getLastPart(),
-                "/*<BASE_NAMESPACE>*/" => $layer->getBaseFqcn()->getFqcn(),
+                
+                "/*<PSR4_NAMESPACE>*/" => $qcn->getFqcn(),
+                "/*<PSR4_NAMESPACE_BASE>*/" => $qcn->getBasePart(),
+                "/*<PSR4_NAMESPACE_LAST>*/" => $qcn->getLastPart(),
+            
             ]);
+        $generated_stubs = $this->generateStubs($primitive, $layer, $qcn);
         
-        return $this->generateStubs($primitive, $layer, $qcn);
+        return $generated_stubs;
     }
     
     
@@ -108,7 +148,7 @@ final class Generator
      * @param Layer     $layer
      * @param FQCN      $qcn
      *
-     * @return array
+     * @return array [final_path => stub_file]
      */
     private
     function generateStubs(
@@ -116,13 +156,7 @@ final class Generator
         $layer,
         $qcn
     ): array {
-        $new_files = [];
-        
-        $put_in_file = function($target_path, $source_file): void {
-            @mkdir(dirname($target_path), 0775, true);
-            $content = $this->replacePlaceholdersInText(file_get_contents($source_file));
-            file_put_contents($target_path, $content);
-        };
+        $generated_stubs = [];
         
         //
         // 1. SRC stubs
@@ -136,12 +170,10 @@ final class Generator
             
             $target_path = $this->src_dir
                            . DIRECTORY_SEPARATOR . $layer->getDir()
-                           . DIRECTORY_SEPARATOR . $primitive->getSrcDir()
-                           . DIRECTORY_SEPARATOR . $qcn->getBasePart()
+                           . DIRECTORY_SEPARATOR . $qcn->toPSR4Path()
                            . DIRECTORY_SEPARATOR . $filename;
             
-            $put_in_file($target_path, $stub);
-            $new_files[] = $target_path;
+            $generated_stubs[ $target_path ] = $stub;
             
         }
         
@@ -158,15 +190,37 @@ final class Generator
             
             $target_path = $this->test_dir
                            . DIRECTORY_SEPARATOR . $layer->getDir()
-                           . DIRECTORY_SEPARATOR . $primitive->getTestDir()
-                           . DIRECTORY_SEPARATOR . $qcn->getBasePart()
+                           . DIRECTORY_SEPARATOR . $qcn->toPSR4Path()
                            . DIRECTORY_SEPARATOR . $filename;
             
-            $put_in_file($target_path, $stub);
-            $new_files[] = $target_path;
+            $generated_stubs[ $target_path ] = $stub;
         }
         
-        return $new_files;
+        return $generated_stubs;
+    }
+    
+    /**
+     * writeStubs to final files
+     *
+     *
+     * @param string $target_path
+     * @param string $source_file
+     *
+     * @return void
+     */
+    private function writeStubs(string $target_path, string $source_file): void
+    {
+        @mkdir(dirname($target_path), 0775, true);
+        
+        
+        $this->updatePlaceholders([
+                                      "/*<FILENAME>*/" => preg_replace("#\.php$#", "", basename($target_path)),
+                                  ]);
+        $content = $this->replacePlaceholdersInText(file_get_contents($source_file));
+        
+        
+        //var_dump($content);
+        file_put_contents($target_path, $content);
     }
     
     /**

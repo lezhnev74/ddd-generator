@@ -24,24 +24,24 @@ Each class is complimented with empty test so I can keep TDD-ing.
 ## Usage
 ```
 #Comman API
-<tool> generate <layer> <primitive> <psr-4 namespaced name>,...,
+bin/dddtool generate <layer> <primitive> <psr-4 namespaced name>,...,
 ```
 
 ```
 # Command generation
-<tool> generate domain command Account\SignUp
+bin/dddtool generate domain command Account\SignUp
  
 # Quary generation in given PSR-4 folder
-<tool> generate app query Queries\Account\SignedUpAccounts
+bin/dddtool generate app query Queries\Account\SignedUpAccounts
  
 # Event generation
-<tool> generate domain event Account\SignedUp
+bin/dddtool generate domain event Account\SignedUp
   
 # VO generation
-<tool> generate domain vo Account\Email
+bin/dddtool generate domain vo Account\Email
 
 # Entity generation
-<tool> generate domain entity Account\Account
+bin/dddtool generate domain entity Account\Account
 ```
 
 ## Config
@@ -53,12 +53,24 @@ You can configure each primitive - set its alias and set stubs to generate new f
 $config = [
   // Where generated tests go
   "test_dir" => null,
-  // This is a prefix for all namespaces in tests
-  "base_test_fqn" => "",
   // This is the prefix fold all folder paths if they are not absolute
   "base_dir" => null,
-  // This is a prefix for all namespaces
-  "base_fqn" => "",
+  // 3 layer each with own namespace and subdirectory
+  "layers" => [
+      "app" => [
+          "base_qcn" => "\\DDDGenApp",
+          "base_test_qcn" => "\\DDDGen\\Tests\\app",
+          "dir" => "app",
+      ],
+      "domain" => [
+          "base_qcn" => "\\DDDGen",
+          "dir" => "domain",
+      ],
+      "infrastructure" => [
+          "base_qcn" => "\\DDDGenInfrastructure",
+          "dir" => "infrastructure",
+      ],
+  ],
   // config for individual things
   "primitives" => [
       // each thing has unique key
@@ -85,9 +97,11 @@ $config = [
 Each primitive can have multiple templates. F.e. command has command and handler templates, query has request, response and handler templates. Event will only have event template and test. So configuration controls which template to generate in the folder.
  
 Template support few placeholders which reflects user input:
-* `/*<BASE_NAMESPACE>*/` - looks like `\App`
-* `/*<BASE_TEST_NAMESPACE>*/` - looks like `\App\Tests` 
+* `/*<BASE_SRC_NAMESPACE>*/` - looks like `\App` (each layer may have different one)
+* `/*<BASE_TEST_NAMESPACE>*/` - looks like `\Domain\Tests`  (each layer may have different one)
 * `/*<LAYER>*/` - app or domain or infrastructure
 * `/*<PRIMITIVE>*/` - f.e. `event` or `command`
-* `/*<NAMESPACED_NAME>*/` - looks like `Account\SignUp`
-* `/*<NAME>*/` f.e. `SignedUp`
+* `/*<PSR4_NAMESPACE>*/` - looks like `Account\Command\SignUp`
+* `/*<PSR4_NAMESPACE_BASE>*/` - looks like `Account\Command` (without final part)
+* `/*<PSR4_NAMESPACE_LAST>*/` f.e. `SignedUp` (just final part)
+* `/*<FILENAME>*/` f.e. `SignedUpCommand` (the final filename for this stub)

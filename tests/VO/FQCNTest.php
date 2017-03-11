@@ -67,12 +67,19 @@ class FQCNTest extends TestCase
         $this->assertEquals("A54\\Abcde\\A12", $fqcn->preppend("A54")->getFqcn());
     }
     
-    function test_it_can_reflect_fqcn_to_path()
+    function test_it_can_reflect_fqcn_to_path_with_file()
     {
         $base_fqcn = "\\Some";
         $fqcn      = new FQCN("\\Some\\namespaced\\Object");
         
         $this->assertEquals("namespaced/Object.php", $fqcn->toPSR4File($base_fqcn));
+    }
+    
+    function test_it_can_reflect_fqcn_to_path()
+    {
+        $fqcn = new FQCN("\\Some\\namespaced\\Object");
+        
+        $this->assertEquals("Some/namespaced/Object", $fqcn->toPSR4Path());
     }
     
     function test_it_can_get_last_part_of_name()

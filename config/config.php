@@ -2,22 +2,23 @@
 
 return [
     // Base dir for generated tests
-    "test_dir" => null,
+    "test_dir" => __DIR__ . "/../tests",
     // Base namespacese for tests
-    "base_test_qcn" => "\\DDDGenTests",
+    "base_test_qcn" => "DDDGen\\Tests",
     // Base dir for generated sources
-    "src_dir" => null,
+    "src_dir" => __DIR__ . "/../src",
+    // 3 layer each with own namespace and subdirectory
     "layers" => [
         "app" => [
-            "base_qcn" => "\\DDDGenApp",
+            "base_qcn" => "DDDGenApp",
             "dir" => "app",
         ],
         "domain" => [
-            "base_qcn" => "\\DDDGen",
+            "base_qcn" => "DDDGen",
             "dir" => "domain",
         ],
         "infrastructure" => [
-            "base_qcn" => "\\DDDGenInfrastructure",
+            "base_qcn" => "DDDGenInfrastructure",
             "dir" => "infrastructure",
         ],
     ],
@@ -30,14 +31,18 @@ return [
             
             // each layer must have a config, otherwise it won't let generation happen
             "src" => [
-                "dir" => "Command",
                 "stubs" => [
-                    "/*<NAME>*/Command" => "...path to stub" // final file name => stub file
+                    "/*<PSR4_NAMESPACE_LAST>*/" => __DIR__ . "/../resources/Primitives/Simple/Simple.stub.php",
+                    "/*<PSR4_NAMESPACE_LAST>*/Handler" => __DIR__ . "/../resources/Primitives/Simple/Simple.stub.php",
+                    // final file name => stub file
                 ], // full paths to stubs
             ],
             "test" => [
-                "dir" => "Command",
-                "stubs" => [], // full paths to stubs
+                "stubs" => [
+                    "/*<PSR4_NAMESPACE_LAST>*/Test" => __DIR__ . "/../resources/Primitives/Simple/SimpleTest.stub.php",
+                    "/*<PSR4_NAMESPACE_LAST>*/HandlerTest" => __DIR__ . "/../resources/Primitives/Simple/SimpleTest.stub.php",
+                    // final file name => stub file
+                ], // full paths to stubs
             ],
         
         ],

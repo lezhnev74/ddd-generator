@@ -14,12 +14,10 @@ class PrimitiveTest extends TestCase
         return [
             "alias" => "c",
             "src" => [
-                "dir" => "Command",
-                "stubs" => [__DIR__ . "/../resources/stubs/SampleStub.stub.php"],
+                "stubs" => [__DIR__ . "/../resources/stubs/SimpleStub.stub.php"],
             ],
             "test" => [
-                "dir" => "Command",
-                "stubs" => [__DIR__ . "/../resources/stubs/SampleTestStub.stub.php"],
+                "stubs" => [__DIR__ . "/../resources/stubs/SimpleTestStub.stub.php"],
             ],
         ];
     }
@@ -30,9 +28,7 @@ class PrimitiveTest extends TestCase
         $primitive = new Primitive(
             "command",
             $config['alias'],
-            $config['src']['dir'],
             $config['src']['stubs'],
-            $config['test']['dir'],
             $config['test']['stubs']
         );
         
@@ -46,15 +42,11 @@ class PrimitiveTest extends TestCase
         $primitive = new Primitive(
             "command",
             $config['alias'],
-            $config['src']['dir'],
             $config['src']['stubs'],
-            $config['test']['dir'],
             $config['test']['stubs']
         );
         
-        $this->assertEquals($config["src"]["dir"], $primitive->getSrcDir());
         $this->assertEquals($config["src"]["stubs"], $primitive->getSrcStubs());
-        $this->assertEquals($config["test"]["dir"], $primitive->getTestDir());
         $this->assertEquals($config["test"]["stubs"], $primitive->getTestStubs());
         $this->assertEquals("command", $primitive->getName());
     }
@@ -69,9 +61,7 @@ class PrimitiveTest extends TestCase
         $primitive = new Primitive(
             "command",
             $config['alias'],
-            $config['src']['dir'],
             $config['src']['stubs'],
-            $config['test']['dir'],
             $config['test']['stubs']
         );
         

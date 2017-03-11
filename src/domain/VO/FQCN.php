@@ -63,6 +63,24 @@ final class FQCN
     }
     
     /**
+     * toPSR4Dir
+     * Ref: http://www.php-fig.org/psr/psr-4/
+     *
+     *
+     * @param $base_fqcn will be excluded from final path
+     *
+     * @return string
+     */
+    public function toPSR4Path($base_fqcn = ""): string
+    {
+        $fqcn = str_replace($base_fqcn, "", $this->getFqcn());
+        $path = str_replace("\\", "/", $fqcn);
+        $path = trim($path, "/");
+        
+        return $path;
+    }
+    
+    /**
      * getLastPart - return only last block from namespace
      *
      *
