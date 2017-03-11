@@ -17,6 +17,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "php": "^7",
         "beberlei/assert": "^2.7",
         "symfony/console": "^3.2"
     },

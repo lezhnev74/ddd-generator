@@ -35,13 +35,8 @@ bin/dddtool generate domain command Account\Commands\SignUp
 bin/dddtool generate app query Queries\Account\SignedUpAccounts
  
 # Event generation
-bin/dddtool generate domain event Account\Events\SignedUp
+bin/dddtool generate domain event Account\Events\SignedUp -c
   
-# VO generation
-bin/dddtool generate domain vo Account\VO\Email
-
-# Entity generation
-bin/dddtool generate domain entity Account\Entities\Account
 ```
 
 ## Config
