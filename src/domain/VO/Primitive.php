@@ -9,8 +9,6 @@ final class Primitive
 {
     /** @var  string */
     private $name;
-    /** @var  string */
-    private $alias;
     /** @var  array */
     private $src_stubs;
     /** @var array */
@@ -24,10 +22,9 @@ final class Primitive
      * @param array  $src_stubs
      * @param array  $test_stubs
      */
-    public function __construct($name, $alias, array $src_stubs, array $test_stubs)
+    public function __construct($name, array $src_stubs, array $test_stubs)
     {
         $this->name       = $name;
-        $this->alias      = $alias;
         $this->src_stubs  = $src_stubs;
         $this->test_stubs = $test_stubs;
         
@@ -40,14 +37,6 @@ final class Primitive
     public function getName(): string
     {
         return $this->name;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getAlias(): string
-    {
-        return $this->alias;
     }
     
     /**
@@ -68,7 +57,7 @@ final class Primitive
     
     private function validate()
     {
-        Assert::thatAll([$this->alias, $this->name])->minLength(1);
+        Assert::thatAll([$this->name])->minLength(1);
         Assert::that(count($this->test_stubs) + count($this->src_stubs))
               ->min(1, "Provide at least one stub for this primitive");
     }

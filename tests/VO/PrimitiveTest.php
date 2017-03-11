@@ -12,7 +12,6 @@ class PrimitiveTest extends TestCase
     private function seedConfig()
     {
         return [
-            "alias" => "c",
             "src" => [
                 "stubs" => [__DIR__ . "/../resources/stubs/SimpleStub.stub.php"],
             ],
@@ -22,18 +21,6 @@ class PrimitiveTest extends TestCase
         ];
     }
     
-    function test_it_can_have_alias()
-    {
-        $config    = $this->seedConfig();
-        $primitive = new Primitive(
-            "command",
-            $config['alias'],
-            $config['src']['stubs'],
-            $config['test']['stubs']
-        );
-        
-        $this->assertEquals($config["alias"], $primitive->getAlias());
-    }
     
     function test_it_can_have_src_and_test()
     {
@@ -41,7 +28,6 @@ class PrimitiveTest extends TestCase
         $config    = $this->seedConfig();
         $primitive = new Primitive(
             "command",
-            $config['alias'],
             $config['src']['stubs'],
             $config['test']['stubs']
         );
@@ -51,16 +37,14 @@ class PrimitiveTest extends TestCase
         $this->assertEquals("command", $primitive->getName());
     }
     
-    function test_it_validates_config()
+    function test_it_validates_input()
     {
         $this->expectException(InvalidArgumentException::class);
         
-        $config          = $this->seedConfig();
-        $config['alias'] = "";
+        $config                 = $this->seedConfig();
         
         $primitive = new Primitive(
-            "command",
-            $config['alias'],
+            "",
             $config['src']['stubs'],
             $config['test']['stubs']
         );

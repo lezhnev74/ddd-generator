@@ -67,7 +67,6 @@ class GeneratorTest extends TestCase
             ],
             "primitives" => [
                 "command" => [
-                    "alias" => "c",
                     "src" => [
                         "stubs" => [
                             "/*<PSR4_NAMESPACE_LAST>*/Command" => __DIR__ . "/resources/stubs/SimpleStub.stub.php",
@@ -121,7 +120,6 @@ class GeneratorTest extends TestCase
         foreach($config as $name => $primitive_config) {
             $primitives[] = new Primitive(
                 $name,
-                $primitive_config['alias'],
                 $primitive_config['src']['stubs'],
                 $primitive_config['test']['stubs']
             );

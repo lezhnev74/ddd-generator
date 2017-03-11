@@ -26,9 +26,6 @@ return [
     "primitives" => [
         // each thing has unique key
         "command" => [
-            // alias is for using in short syntax, like `<tool> gac ...`
-            "alias" => "c",
-            
             // each layer must have a config, otherwise it won't let generation happen
             "src" => [
                 "stubs" => [
