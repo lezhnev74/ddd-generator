@@ -1,5 +1,5 @@
 # DDD Generator for 3-layered applications
-When developing in a clean and decoupled way, you have to deal with many OO interfaces and objects. Where you had one object in RAPID development flow, you have plenty of objects in DDD flow. To speed things up I use this tool to generate primitives related to CQRS pattern and clean architecture.
+When developing in a clean and decoupled way, you have to deal with many OO interfaces and objects. Where you had one object in RAPID development flow, you have plenty of objects in DDD flow. To speed things up I use this tool to generate primitives related to ServiceBus pattern, CQRS pattern and clean architecture.
  
 **Note:** I keep in mind that there can be 3 global layers in the app:
  * domain, 
@@ -8,7 +8,7 @@ When developing in a clean and decoupled way, you have to deal with many OO inte
 
 **Note:** I use PSR-4 so any folder inheritance leads to namespace inheritance. And also type of slashes is irrelevant - \ and / will do the same.
 
-**Note:** This tool is designed to be extensible. So while it contains packs to generate widely used primitives like commands, there can be easily added packs to generate http controllers (+tests) and views and anything else. Basically this is just a tool to generate something withing a given application layer and compliment it with the empty test.
+**Note:** This tool is designed to be extensible. So while it contains packs to generate widely used primitives like commands, there can be easily added packs to generate http controllers (+tests) and views and anything else. *Basically this is just a tool to generate something withing a given application layer and compliment it with the empty test.*
 
 **Note:** No Windows support in mind.
  
@@ -24,24 +24,24 @@ Each class is complimented with empty test so I can keep TDD-ing.
 ## Usage
 ```
 #Comman API
-bin/dddtool generate <layer> <primitive> <psr-4 namespaced name>,...,
+bin/dddtool generate <layer> <primitive> <psr-4 namespaced name>
 ```
 
 ```
 # Command generation
-bin/dddtool generate domain command Account\SignUp
+bin/dddtool generate domain command Account\Commands\SignUp
  
 # Quary generation in given PSR-4 folder
 bin/dddtool generate app query Queries\Account\SignedUpAccounts
  
 # Event generation
-bin/dddtool generate domain event Account\SignedUp
+bin/dddtool generate domain event Account\Events\SignedUp
   
 # VO generation
-bin/dddtool generate domain vo Account\Email
+bin/dddtool generate domain vo Account\VO\Email
 
 # Entity generation
-bin/dddtool generate domain entity Account\Account
+bin/dddtool generate domain entity Account\Entities\Account
 ```
 
 ## Config
@@ -51,23 +51,24 @@ You can configure each primitive - set its alias and set stubs to generate new f
 
 ```php
 $config = [
-  // Where generated tests go
-  "test_dir" => null,
-  // This is the prefix fold all folder paths if they are not absolute
-  "base_dir" => null,
+  // Base dir for generated tests
+  "test_dir" => __DIR__ . "/../tests",
+  // Base namespacese for tests
+  "base_test_qcn" => "DDDGen\\Tests",
+  // Base dir for generated sources
+  "src_dir" => __DIR__ . "/../src",
   // 3 layer each with own namespace and subdirectory
   "layers" => [
       "app" => [
-          "base_qcn" => "\\DDDGenApp",
-          "base_test_qcn" => "\\DDDGen\\Tests\\app",
+          "base_qcn" => "DDDGenApp",
           "dir" => "app",
       ],
       "domain" => [
-          "base_qcn" => "\\DDDGen",
+          "base_qcn" => "DDDGen",
           "dir" => "domain",
       ],
       "infrastructure" => [
-          "base_qcn" => "\\DDDGenInfrastructure",
+          "base_qcn" => "DDDGenInfrastructure",
           "dir" => "infrastructure",
       ],
   ],
@@ -77,14 +78,18 @@ $config = [
       "command" => [
           // each layer must have a config, otherwise it won't let generation happen
           "src" => [
-              "dir" => "Command",
               "stubs" => [
-                "/*<NAME>*/Command" => "...path to stub" // final file name => stub file, see tempaltes for palceholders
+                  "/*<PSR4_NAMESPACE_LAST>*/" => __DIR__ . "/../resources/Primitives/Simple/Simple.stub.php",
+                  "/*<PSR4_NAMESPACE_LAST>*/Handler" => __DIR__ . "/../resources/Primitives/Simple/Simple.stub.php",
+                  // final file name => stub file
               ], // full paths to stubs
           ],
           "test" => [
-              "dir" => "Command",
-              "stubs" => [...], // full paths to stubs
+              "stubs" => [
+                  "/*<PSR4_NAMESPACE_LAST>*/Test" => __DIR__ . "/../resources/Primitives/Simple/SimpleTest.stub.php",
+                  "/*<PSR4_NAMESPACE_LAST>*/HandlerTest" => __DIR__ . "/../resources/Primitives/Simple/SimpleTest.stub.php",
+                  // final file name => stub file
+              ], // full paths to stubs
           ],
       
       ],
