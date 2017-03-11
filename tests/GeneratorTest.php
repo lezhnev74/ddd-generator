@@ -43,6 +43,9 @@ class GeneratorTest extends TestCase
             $this->assertFileExists($file);
         }
         
+        $this->assertEquals($config['src_dir'], $generator->getSrcDir());
+        $this->assertEquals($config['test_dir'], $generator->getTestDir());
+        
     }
     
     private function seed_config()
