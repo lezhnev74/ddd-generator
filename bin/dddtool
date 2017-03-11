@@ -1,20 +1,24 @@
 #!/usr/bin/env php
 <?php
-declare(strict_types = 1);
 
+$included_autoload = false;
 foreach([
             __DIR__ . '/../autoload.php',
             __DIR__ . '/../../autoload.php',
+            __DIR__ . '/../../../autoload.php',
             __DIR__ . '/../vendor/autoload.php',
             __DIR__ . '/vendor/autoload.php',
         ] as $file) {
     if(file_exists($file)) {
         require($file);
+        $included_autoload = true;
         
         break;
     }
 }
-
+if(!$included_autoload) {
+    die("No autoload file included");
+}
 
 use DDDGenApp\Input\Console\Commands\Generate;
 use Symfony\Component\Console\Application;
