@@ -12,6 +12,8 @@ When developing in a clean and decoupled way, you have to deal with many OO inte
 
 **Note:** No Windows support in mind.
  
+![](screencast.gif)
+ 
 ## What it can generate
 * CommandBus: command and handler classes
 * QueryBus: request, response and handler
