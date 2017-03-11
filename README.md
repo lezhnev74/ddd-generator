@@ -21,6 +21,12 @@ When developing in a clean and decoupled way, you have to deal with many OO inte
 
 Each class is complimented with empty test so I can keep TDD-ing.
  
+## Installation
+Via composer:
+```
+composer require lezhnev74/ddd-generator
+```
+ 
 ## Usage
 ```
 #Comman API
