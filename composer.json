@@ -1,7 +1,7 @@
 {
     "name": "lezhnev74/ddd-generator",
     "description": "DDD Generator for 3-layered applications",
-    "tags": [
+    "keywords": [
         "ddd",
         "clean-architecture",
         "php",
@@ -17,7 +17,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^7",
+        "php": "^7.1",
         "beberlei/assert": "^2.7",
         "symfony/console": "^3.2"
     },
@@ -32,6 +32,6 @@
         }
     },
     "bin": [
-        "bin/dddgen"
+        "bin/dddgenerator"
     ]
 }
