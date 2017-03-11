@@ -32,6 +32,6 @@
         }
     },
     "bin": [
-        "bin/dddgenerator"
+        "bin/dddtool"
     ]
 }
