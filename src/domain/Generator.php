@@ -5,6 +5,7 @@ namespace DDDGen;
 
 use Assert\Assert;
 use DDDGen\VO\FQCN;
+use DDDGen\VO\Layer;
 use DDDGen\VO\Primitive;
 
 final class Generator
@@ -14,15 +15,9 @@ final class Generator
     /** @var  string */
     private $test_dir;
     /** @var  FQCN */
-    private $base_qcn;
-    /** @var  FQCN */
     private $test_qcn;
-    /** @var  string */
-    private $layer_app_dir;
-    /** @var  string */
-    private $layer_domain_dir;
-    /** @var  string */
-    private $layer_infrastructure_dir;
+    /** @var  Layer[] */
+    private $layers;
     /** @var  Primitive[] */
     private $primitives;
     /** @var  array of placeholders which can be replaced in stub files */
@@ -31,47 +26,44 @@ final class Generator
     /**
      * Generator constructor.
      *
-     * @param string      $base_dir
+     * @param string      $src_dir
      * @param string      $test_dir
-     * @param FQCN        $base_fqcn
-     * @param FQCN        $test_fqcn
-     * @param string      $layer_app_dir
-     * @param string      $layer_domain_dir
-     * @param string      $layer_infrastructure_dir
+     * @param FQCN        $base_qcn
+     * @param FQCN        $test_qcn
+     * @param Layer[]     $layers
      * @param Primitive[] $primitives
      */
     public function __construct(
         string $src_dir,
         string $test_dir,
-        FQCN $base_qcn,
         FQCN $test_qcn,
+        array $layers,
         array $primitives
     ) {
-        $this->src_dir                  = $src_dir;
-        $this->test_dir                 = $test_dir;
-        $this->base_qcn                 = $base_qcn;
-        $this->test_qcn                 = $test_qcn;
-        $this->layer_app_dir            = "app";
-        $this->layer_domain_dir         = "domain";
-        $this->layer_infrastructure_dir = "infrastructure";
-        $this->primitives               = $primitives;
+        $this->src_dir    = $src_dir;
+        $this->test_dir   = $test_dir;
+        $this->test_qcn   = $test_qcn;
+        $this->layers     = $layers;
+        $this->primitives = $primitives;
         
         $this->validate();
         $this->updatePlaceholders([
-                                      "/*<BASE_NAMESPACE>*/" => $base_qcn->getFqcn(),
                                       "/*<BASE_TEST_NAMESPACE>*/" => $test_qcn->getFqcn(),
                                   ]);
     }
     
-    private function validate()
+    private
+    function validate()
     {
         Assert::thatAll([
                             $this->src_dir,
                             $this->test_dir,
-                            $this->layer_app_dir,
-                            $this->layer_domain_dir,
-                            $this->layer_infrastructure_dir,
                         ])->minLength(1);
+        
+        Assert::thatAll($this->primitives)->isInstanceOf(Primitive::class);
+        Assert::thatAll($this->layers)->isInstanceOf(Layer::class);
+        
+        Assert::that(count($this->layers))->min(1);
         Assert::that(count($this->primitives))->min(1);
     }
     
@@ -85,20 +77,24 @@ final class Generator
      *
      * @return array of generated files
      */
-    public function generate($layer, $primitive_name, FQCN $qcn): array
-    {
-        if(!in_array($layer, ['app', 'domain', 'infrastructure'])) {
-            throw new \Exception("Layer $layer is not supported");
-        }
+    public
+    function generate(
+        $layer_name,
+        $primitive_name,
+        FQCN $qcn
+    ): array {
         
         $primitive = $this->getPrimitiveByName($primitive_name);
+        $layer     = $this->getLayerByName($layer_name);
         
-        $this->updatePlaceholders([
-                                      "/*<LAYER>*/" => $layer,
-                                      "/*<PRIMITIVE>*/" => $primitive_name,
-                                      "/*<NAMESPACED_NAME>*/" => $qcn->getFqcn(),
-                                      "/*<NAME>*/" => $qcn->getLastPart(),
-                                  ]);
+        $this->updatePlaceholders(
+            [
+                "/*<LAYER>*/" => $layer->getName(),
+                "/*<PRIMITIVE>*/" => $primitive_name,
+                "/*<NAMESPACED_NAME>*/" => $qcn->getFqcn(),
+                "/*<NAME>*/" => $qcn->getLastPart(),
+                "/*<BASE_NAMESPACE>*/" => $layer->getBaseFqcn()->getFqcn(),
+            ]);
         
         return $this->generateStubs($primitive, $layer, $qcn);
     }
@@ -109,20 +105,18 @@ final class Generator
      *
      *
      * @param Primitive $primitive
-     * @param string    $layer
+     * @param Layer     $layer
      * @param FQCN      $qcn
      *
      * @return array
      */
-    private function generateStubs($primitive, $layer, $qcn): array
-    {
+    private
+    function generateStubs(
+        $primitive,
+        $layer,
+        $qcn
+    ): array {
         $new_files = [];
-        
-        //
-        // 0. Layer relative path
-        //
-        $property   = "layer_{$layer}_dir";
-        $layer_path = $this->$property;
         
         $put_in_file = function($target_path, $source_file): void {
             @mkdir(dirname($target_path), 0775, true);
@@ -141,7 +135,7 @@ final class Generator
             }
             
             $target_path = $this->src_dir
-                           . DIRECTORY_SEPARATOR . $layer_path
+                           . DIRECTORY_SEPARATOR . $layer->getDir()
                            . DIRECTORY_SEPARATOR . $primitive->getSrcDir()
                            . DIRECTORY_SEPARATOR . $qcn->getBasePart()
                            . DIRECTORY_SEPARATOR . $filename;
@@ -163,7 +157,7 @@ final class Generator
             }
             
             $target_path = $this->test_dir
-                           . DIRECTORY_SEPARATOR . $layer_path
+                           . DIRECTORY_SEPARATOR . $layer->getDir()
                            . DIRECTORY_SEPARATOR . $primitive->getTestDir()
                            . DIRECTORY_SEPARATOR . $qcn->getBasePart()
                            . DIRECTORY_SEPARATOR . $filename;
@@ -183,8 +177,10 @@ final class Generator
      *
      * @return Primitive
      */
-    private function getPrimitiveByName(string $name): Primitive
-    {
+    private
+    function getPrimitiveByName(
+        string $name
+    ): Primitive {
         foreach($this->primitives as $primitive) {
             if($primitive->getName() == $name) {
                 return $primitive;
@@ -202,8 +198,10 @@ final class Generator
      *
      * @return void
      */
-    private function updatePlaceholders(array $placeholders): void
-    {
+    private
+    function updatePlaceholders(
+        array $placeholders
+    ): void {
         Assert::thatAll($placeholders)->string();
         
         $this->placeholders = array_merge($this->placeholders, $placeholders);
@@ -217,11 +215,25 @@ final class Generator
      *
      * @return string
      */
-    private function replacePlaceholdersInText($text): string
-    {
+    private
+    function replacePlaceholdersInText(
+        $text
+    ): string {
         $text = str_replace(array_keys($this->placeholders), $this->placeholders, $text);
         
         return $text;
+    }
+    
+    
+    private function getLayerByName(string $name): Layer
+    {
+        foreach($this->layers as $layer) {
+            if($layer->getName() == $name) {
+                return $layer;
+            }
+        }
+        
+        throw new \Exception("Layer with name $name was not found");
     }
 }
 

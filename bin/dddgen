@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types = 1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use DDDGenApp\Input\Console\Commands\Generate;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+
+$application->add(new Generate());
+$application->setVersion('0.0.1'); // TODO is this working?
+$application->run();

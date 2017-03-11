@@ -6,6 +6,7 @@ namespace DDDGen\Tests;
 
 use DDDGen\Generator;
 use DDDGen\VO\FQCN;
+use DDDGen\VO\Layer;
 use DDDGen\VO\Primitive;
 use PHPUnit\Framework\TestCase;
 
@@ -51,7 +52,20 @@ class GeneratorTest extends TestCase
             "test_dir" => __DIR__ . "/resources/tmp/tests",
             "base_test_qcn" => "\\App\\Tests",
             "src_dir" => __DIR__ . "/resources/tmp/src",
-            "base_qcn" => "\\App",
+            "layers" => [
+                "app" => [
+                    "base_qcn" => "\\DDDGenApp",
+                    "dir" => "app",
+                ],
+                "domain" => [
+                    "base_qcn" => "\\DDDGen",
+                    "dir" => "domain",
+                ],
+                "infrastructure" => [
+                    "base_qcn" => "\\DDDGenInfrastructure",
+                    "dir" => "infrastructure",
+                ],
+            ],
             "primitives" => [
                 "command" => [
                     "alias" => "c",
@@ -71,6 +85,7 @@ class GeneratorTest extends TestCase
                 
                 ],
             ],
+        
         ];
         
         // make folders
@@ -80,16 +95,27 @@ class GeneratorTest extends TestCase
         // instantiate objects
         
         $primitives = $this->makePrimitives($config['primitives']);
+        $layers     = $this->makeLayers($config['layers']);
         
         $generator = new Generator(
             $config['src_dir'],
             $config['test_dir'],
-            new FQCN($config['base_qcn']),
             new FQCN($config['base_test_qcn']),
+            $layers,
             $primitives
         );
         
         return [$config, $primitives, $generator];
+    }
+    
+    private function makeLayers(array $config): array
+    {
+        $layers = [];
+        foreach($config as $layer_name => $layer_config) {
+            $layers[] = new Layer($layer_name, $layer_config['dir'], new FQCN($layer_config['base_qcn']));
+        }
+        
+        return $layers;
     }
     
     private function makePrimitives(array $config): array

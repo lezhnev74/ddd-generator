@@ -30,28 +30,18 @@ Each class is complimented with empty test so I can keep TDD-ing.
 ```
 # Command generation
 <tool> generate domain command Account\SignUp
-# or with alias
-<tool> gdc SignUp
  
 # Quary generation in given PSR-4 folder
 <tool> generate app query Queries\Account\SignedUpAccounts
-#or with alias
-<tool> gaq Queries\Account\SignedUpAccounts
  
 # Event generation
 <tool> generate domain event Account\SignedUp
-# or with alias
-<tool> gde Account\SignedUp
   
 # VO generation
 <tool> generate domain vo Account\Email
-# or with alias
-<tool> gdvo Account\Email
 
 # Entity generation
 <tool> generate domain entity Account\Account
-# or with alias 
-<tool> gdent Account\Account
 ```
 
 ## Config
@@ -73,9 +63,6 @@ $config = [
   "primitives" => [
       // each thing has unique key
       "command" => [
-          // alias is for using in short syntax, like `<tool> gac ...`
-          "alias" => "c",
-          
           // each layer must have a config, otherwise it won't let generation happen
           "src" => [
               "dir" => "Command",

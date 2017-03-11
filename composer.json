@@ -17,15 +17,20 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "beberlei/assert": "^2.7"
+        "beberlei/assert": "^2.7",
+        "symfony/console": "^3.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.0"
     },
     "autoload": {
         "psr-4": {
-            "DDDGen\\": "src/",
+            "DDDGen\\": "src/domain",
+            "DDDGenApp\\": "src/app",
             "DDDGen\\Tests\\": "tests/"
         }
-    }
+    },
+    "bin": [
+        "bin/dddgen"
+    ]
 }

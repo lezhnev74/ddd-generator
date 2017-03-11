@@ -7,12 +7,13 @@ use Assert\Assert;
 
 final class FQCN
 {
+    /** @var  string */
     private $fqcn;
     
     /**
      * FQCN constructor.
      *
-     * @param $fqcn
+     * @param string $fqcn
      */
     public function __construct($fqcn)
     {

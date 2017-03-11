@@ -1,14 +1,26 @@
 <?php
 
 return [
-    // Where all generated tests go to
+    // Base dir for generated tests
     "test_dir" => null,
-    // Where all generated sources go to
+    // Base namespacese for tests
+    "base_test_qcn" => "\\DDDGenTests",
+    // Base dir for generated sources
     "src_dir" => null,
-    // This is a prefix for all namespaces in tests
-    "base_test_qcn" => "",
-    // This is a prefix for all namespaces in sources
-    "base_qcn" => "",
+    "layers" => [
+        "app" => [
+            "base_qcn" => "\\DDDGenApp",
+            "dir" => "app",
+        ],
+        "domain" => [
+            "base_qcn" => "\\DDDGen",
+            "dir" => "domain",
+        ],
+        "infrastructure" => [
+            "base_qcn" => "\\DDDGenInfrastructure",
+            "dir" => "infrastructure",
+        ],
+    ],
     // config for individual things
     "primitives" => [
         // each thing has unique key
@@ -25,7 +37,7 @@ return [
             ],
             "test" => [
                 "dir" => "Command",
-                "stubs" => [""], // full paths to stubs
+                "stubs" => [], // full paths to stubs
             ],
         
         ],
