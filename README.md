@@ -1,5 +1,6 @@
 # DDD Generator for 3-layered applications
 When developing in a clean and decoupled way, you have to deal with many OO interfaces and objects. Where you had one object in RAPID development flow, you have plenty of objects in DDD flow. To speed things up I use this tool to generate primitives related to ServiceBus pattern, CQRS pattern and clean architecture.
+If you interested - [I blogged about ideas behind this generator](https://lessthan12ms.com/one-step-towards-clean-architecture-from-rapid-application-development/).
  
 **Note:** I keep in mind that there can be 3 global layers in the app:
  * domain, 
