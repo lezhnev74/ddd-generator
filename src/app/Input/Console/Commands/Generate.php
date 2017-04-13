@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace DDDGenApp\Input\Console\Commands;
 
@@ -27,9 +27,9 @@ final class Generate extends Command
             ->setHelp("This command allows you to generate new commands, events, queries and other primitives from prepared stub files.")
             ->addArgument('layer', InputArgument::REQUIRED, 'Layer of the primitive - app, domain or infrastructure')
             ->addArgument('primitive_name', InputArgument::REQUIRED,
-                          'Name of predefined primitive - command, query, event or other')
+                'Name of predefined primitive - command, query, event or other')
             ->addArgument('psr4_name', InputArgument::REQUIRED,
-                          'PSR-4 name of the primitive. This one will be used as namespace as well as path to file')
+                'PSR-4 name of the primitive. This one will be used as namespace as well as path to file')
             ->addOption('silent', 'y', InputOption::VALUE_NONE, 'Hide confirmation of generated files')
             ->addOption('config', 'c', InputOption::VALUE_OPTIONAL, 'Use this path to config file');
     }
@@ -43,7 +43,7 @@ final class Generate extends Command
         $psr4_name      = $input->getArgument('psr4_name');
         $silent         = $input->getOption('silent');
         
-        if(!$silent) {
+        if (!$silent) {
             $final_files = $this->generator->generateDry(
                 $layer,
                 $primitive_name,
@@ -51,9 +51,9 @@ final class Generate extends Command
             );
             
             $output->writeln("These files will be created:");
-            foreach($final_files as $file => $stub) {
+            foreach ($final_files as $file => $stub) {
                 // shorten the path to show
-                if(strstr($file, $this->generator->getSrcDir())) {
+                if (strstr($file, $this->generator->getSrcDir())) {
                     $file = str_replace($this->generator->getSrcDir(), "", $file);
                     $output->writeln("[SRC]" . $file);
                 } else {
@@ -64,8 +64,9 @@ final class Generate extends Command
             
             $helper   = $this->getHelper('question');
             $question = new ConfirmationQuestion("Confirm these files being created? [y/n]: ", false);
-            if(!$helper->ask($input, $output, $question)) {
+            if (!$helper->ask($input, $output, $question)) {
                 $output->writeln("Cancelled.");
+                
                 return;
             }
             
@@ -86,7 +87,7 @@ final class Generate extends Command
         $config_path = $input->getOption('config');
         
         // TODO use DI for this initialization
-        if(!$config_path) {
+        if (!$config_path) {
             $config_path = __DIR__ . "/../../../../../config/config.php";
         }
         //if(!file_exists($config_path)) {
@@ -96,8 +97,12 @@ final class Generate extends Command
         //}
         $config = require($config_path);
         
+        if (!is_array($config)) {
+            throw new \Exception("It looks like your config file did not returned an array. Did you forget to add return statement?");
+        }
+        
         $primitives = [];
-        foreach($config['primitives'] as $name => $primitive_config) {
+        foreach ($config['primitives'] as $name => $primitive_config) {
             $primitives[] = new Primitive(
                 $name,
                 $primitive_config['src']['stubs'],
@@ -106,7 +111,7 @@ final class Generate extends Command
         }
         
         $layers = [];
-        foreach($config['layers'] as $layer_name => $layer_config) {
+        foreach ($config['layers'] as $layer_name => $layer_config) {
             $layers[] = new Layer($layer_name, $layer_config['dir'], new FQCN($layer_config['base_qcn']));
         }
         
