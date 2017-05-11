@@ -1,4 +1,8 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/lezhnev74/ddd-generator/master/LICENSE)
+[![Build Status](https://travis-ci.org/lezhnev74/ddd-generator.svg?branch=master)](https://travis-ci.org/lezhnev74/ddd-generator)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lezhnev74/ddd-generator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lezhnev74/ddd-generator/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/lezhnev74/ddd-generator/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lezhnev74/ddd-generator/?branch=master)
+
 
 # DDD Classes Generator for 3-layered Application
 When you develop clean and decoupled app you have to deal with many interfaces and objects. Where you had one object in RAPID development flow, you have plenty of objects in DDD flow. To speed things up I use this tool to generate primitives related to ServiceBus pattern, CQRS pattern and Clean Architecture.
