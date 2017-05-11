@@ -1,27 +1,40 @@
 <?php
 
 return [
-    // Base dir for generated tests
-    "test_dir" => __DIR__ . "/../tests",
-    // Base namespacese for tests
-    "base_test_qcn" => "DDDGen\\Tests",
-    // Base dir for generated sources
-    //"src_dir" => __DIR__ . "/../src",
-    // 3 layer each with own namespace and subdirectory
     "layers" => [
         "app" => [
-            "base_qcn" => "DDDGenApp",
-            "dir" => __DIR__ . "/../src/app",
+            "src" => [
+                "qcn" => "\\DDDGenApp", // What base namespace to use
+                "dir" => __DIR__ . "/../src/app", // Where to put new source files
+            ],
+            "tests" => [
+                "qcn" => "\\DDDGen\\Tests", // what base namespace to use
+                "dir" => __DIR__ . "/../tests", // Where to put new tests files
+            ],
         ],
         "domain" => [
-            "base_qcn" => "DDDGen",
-            "dir" => __DIR__ . "/../src/domain",
+            "src" => [
+                "qcn" => "DDDGen",
+                "dir" => __DIR__ . "/../src/domain",
+            ],
+            "tests" => [
+                "qcn" => "\\DDDGen\\Tests",
+                "dir" => __DIR__ . "/../tests",
+            ],
         ],
         "infrastructure" => [
-            "base_qcn" => "DDDGenInfrastructure",
-            "dir" => __DIR__ . "/../src/infrastructure",
+            "src" => [
+                "qcn" => "DDDGenInfrastructure",
+                "dir" => __DIR__ . "/../src/infrastructure",
+            ],
+            "tests" => [
+                "qcn" => "\\DDDGen\\Tests",
+                "dir" => __DIR__ . "/../tests",
+            ],
         ],
     ],
+    
+    
     // config for individual things
     "primitives" => [
         // each primitive has unique key
@@ -44,5 +57,7 @@ return [
         ],
         // ... any other primitive
     ],
+
+
 ];
 

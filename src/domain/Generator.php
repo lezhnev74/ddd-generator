@@ -225,7 +225,7 @@ final class Generator
     }
     
     
-    private function getLayerByName(string $name): Layer
+    public function getLayerByName(string $name): Layer
     {
         foreach ($this->layers as $layer) {
             if ($layer->getName() == $name) {

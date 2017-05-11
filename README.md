@@ -77,32 +77,32 @@ $config = [
     "layers" => [
         "app" => [
             "src" => [
-                "qcn" => "\\DDDGenApp", // What base namespace to use
-                "dir" => __DIR__ . "/tmp/src/app", // Where to put new source files
+                "qcn" => "\\App", // What base namespace to use
+                "dir" => __DIR__."/src/app", // Where to put new source files
             ],
             "tests" => [
-                "qcn" => "\\Tests", // what base namesapce to use
-                "dir" => __DIR__ . "/tmp/tests", // Where to put new tests files
+                "qcn" => "\\Tests", // what base namespace to use
+                "dir" => __DIR__."/tests/app", // Where to put new tests files
             ],
         ],
         "domain" => [
             "src" => [
-                "qcn" => "\\DDDGen",
-                "dir" => __DIR__ . "/tmp/src/domain",
+                "qcn" => "\\Domain",
+                "dir" => "src/domain",
             ],
             "tests" => [
                 "qcn" => "\\Tests",
-                "dir" => __DIR__ . "/tmp/tests",
+                "dir" => __DIR__."/tests/domain",
             ],
         ],
         "infrastructure" => [
             "src" => [
-                "qcn" => "\\DDDGenInfrastructure",
-                "dir" => __DIR__ . "/tmp/src/infrastructure",
+                "qcn" => "\\Infrastructure",
+                "dir" => __DIR__ . "/src/infrastructure",
             ],
             "tests" => [
                 "qcn" => "\\Tests",
-                "dir" => __DIR__ . "/tmp/tests",
+                "dir" => __DIR__ . "/tests/infrastructure",
             ],
         ],
     ],
@@ -142,6 +142,29 @@ Template support few placeholders which reflects user input:
 * `/*<PSR4_NAMESPACE_BASE>*/` - looks like `Account\Command` (without final part)
 * `/*<PSR4_NAMESPACE_LAST>*/` f.e. `SignedUp` (just final part)
 * `/*<FILENAME>*/` f.e. `SignedUpCommand` (the final filename for this stub)
+
+
+This how stub for a test file can look like inside:
+
+```
+<?php
+declare(strict_types = 1);
+
+// Full class' namespace is combined from layer's base namespace + user provided namespace (see <primitive_namespace> argument) 
+namespace /*<BASE_TEST_NAMESPACE>*/\/*<PSR4_NAMESPACE>*/;
+
+use PHPUnit\Framework\TestCase;
+
+// this is 
+class /*<PSR4_NAMESPACE_LAST>*/ extends TestCase {
+    
+    function test_it_works() {
+        $this->markTestIncomplete();
+    }
+    
+}
+```
+
 
 ## How it works
 Take for example the config file shown above and let's explain this command:

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace DDDGen\VO;
 
@@ -55,7 +55,7 @@ final class FQCN
     {
         $fqcn = str_replace($base_fqcn, "", $this->getFqcn());
         $path = str_replace("\\", "/", $fqcn) . ".php";
-        if($path[0] == "/") {
+        if ($path[0] == "/") {
             $path = substr($path, 1);
         }
         
@@ -102,7 +102,7 @@ final class FQCN
     public function getBasePart(): string
     {
         $string = str_replace($this->getLastPart(), "", $this->getFqcn());
-        if($string[ -1 ] == "\\") {
+        if (isset($string[-1]) && $string[-1] == "\\") {
             $string = substr($string, 0, -1);
         }
         
@@ -121,7 +121,7 @@ final class FQCN
     {
         $string = str_replace("/", "\\", $string);
         $string = preg_replace("#(\\\\){2,}#", "\\", $string);
-        if(substr($string, -1, 1) == "\\") {
+        if (substr($string, -1, 1) == "\\") {
             $string = substr($string, 0, -1);
         }
         

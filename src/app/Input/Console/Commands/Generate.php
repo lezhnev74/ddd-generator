@@ -49,21 +49,28 @@ final class Generate extends Command
                 $primitive_name,
                 FQCN::fromString($psr4_name)
             );
+            $src_base    = $this->generator->getLayerByName($layer)->getSrcDir();
+            $tests_base  = $this->generator->getLayerByName($layer)->getTestsDir();
             
-            $output->writeln("These files will be created:");
+            $output->writeln("============ BASE PATHES =====================");
+            $output->writeln("[SRC] = " . $src_base);
+            $output->writeln("[TEST] = " . $tests_base);
+            $output->writeln("============ FINAL FILES =====================");
+            
+            
             foreach ($final_files as $file => $stub) {
                 // shorten the path to show
-                if (strstr($file, $this->generator->getSrcDir())) {
-                    $file = str_replace($this->generator->getSrcDir(), "", $file);
+                if (strstr($file, $src_base)) {
+                    $file = str_replace($src_base, "", $file);
                     $output->writeln("[SRC]" . $file);
                 } else {
-                    $file = str_replace($this->generator->getTestDir(), "", $file);
+                    $file = str_replace($tests_base, "", $file);
                     $output->writeln("[TEST]" . $file);
                 }
             }
             
             $helper   = $this->getHelper('question');
-            $question = new ConfirmationQuestion("Confirm these files being created? [y/n]: ", false);
+            $question = new ConfirmationQuestion("Confirm and create these files? [y/n]: ", false);
             if (!$helper->ask($input, $output, $question)) {
                 $output->writeln("Cancelled.");
                 
@@ -90,7 +97,7 @@ final class Generate extends Command
         if (!$config_path) {
             $config_path = __DIR__ . "/../../../../../config/config.php";
         }
-
+        
         $config = require($config_path);
         
         if (!is_array($config)) {
