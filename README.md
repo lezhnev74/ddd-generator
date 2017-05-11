@@ -155,3 +155,7 @@ The script will do this:
 * then for each stub in the config a new file is prepared. For example, test stub with name `/*<PSR4_NAMESPACE_LAST>*/CommandTest` will actually be created in file `__DIR__ . "/tmp/tests/Account/Commands/SignUp/SignUpCommandTest.php"`.
 * user sees the list of files which are supposed to be generated
 * after confirmation real files are generated and put to file system.
+
+## TODO
+* I am thinking about adding conditions to stub configuration, so user can be asked if he wants to skip some optional stubs for a given primitive.
+* I wonder if I can simplify the design of this tool in any way?
