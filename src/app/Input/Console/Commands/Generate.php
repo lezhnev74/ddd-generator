@@ -90,11 +90,7 @@ final class Generate extends Command
         if (!$config_path) {
             $config_path = __DIR__ . "/../../../../../config/config.php";
         }
-        //if(!file_exists($config_path)) {
-        //    $output->writeLn('Config not found at: ' . $config_path);
-        //
-        //    return;
-        //}
+
         $config = require($config_path);
         
         if (!is_array($config)) {
@@ -112,13 +108,16 @@ final class Generate extends Command
         
         $layers = [];
         foreach ($config['layers'] as $layer_name => $layer_config) {
-            $layers[] = new Layer($layer_name, $layer_config['dir'], new FQCN($layer_config['base_qcn']));
+            $layers[] = new Layer(
+                $layer_name,
+                new FQCN($layer_config['src']['qcn']),
+                $layer_config['src']['dir'],
+                new FQCN($layer_config['tests']['qcn']),
+                $layer_config['tests']['dir']
+            );
         }
         
         $generator = new Generator(
-            $config['src_dir'],
-            $config['test_dir'],
-            new FQCN($config['base_test_qcn']),
             $layers,
             $primitives
         );
