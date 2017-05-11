@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace DDDGen\VO;
 
@@ -10,25 +10,34 @@ final class Layer
     /** @var  string */
     private $name;
     /** @var  FQCN */
-    private $base_fqcn;
+    private $src_fqcn;
     /** @var  string */
-    private $dir;
+    private $src_dir;
+    /** @var  FQCN */
+    private $tests_fqcn;
+    /** @var  string */
+    private $tests_dir;
     
     /**
      * Layer constructor.
      *
      * @param string $name
-     * @param string $dir
-     * @param FQCN   $base_fqcn
+     * @param FQCN   $src_fqcn
+     * @param string $src_dir
+     * @param FQCN   $tests_fqcn
+     * @param string $tests_dir
      */
-    public function __construct(string $name, string $dir, FQCN $base_fqcn)
+    public function __construct($name, FQCN $src_fqcn, $src_dir, FQCN $tests_fqcn, $tests_dir)
     {
-        $this->name      = $name;
-        $this->dir       = $dir;
-        $this->base_fqcn = $base_fqcn;
+        $this->name       = $name;
+        $this->src_fqcn   = $src_fqcn;
+        $this->src_dir    = $src_dir;
+        $this->tests_fqcn = $tests_fqcn;
+        $this->tests_dir  = $tests_dir;
         
         $this->validate();
     }
+    
     
     /**
      * @return string
@@ -41,24 +50,43 @@ final class Layer
     /**
      * @return FQCN
      */
-    public function getBaseFqcn(): FQCN
+    public function getSrcFqcn(): FQCN
     {
-        return $this->base_fqcn;
+        return $this->src_fqcn;
     }
     
     /**
      * @return string
      */
-    public function getDir(): string
+    public function getSrcDir(): string
     {
-        return $this->dir;
+        return $this->src_dir;
     }
+    
+    /**
+     * @return FQCN
+     */
+    public function getTestsFqcn(): FQCN
+    {
+        return $this->tests_fqcn;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getTestsDir(): string
+    {
+        return $this->tests_dir;
+    }
+    
+    
     
     
     private function validate()
     {
         Assert::that($this->name)->inArray(['app', 'domain', 'infrastructure'],
-                                           'Only 3 layers supported - app, domain or infrastructure');
+            'Only 3 layers supported - app, domain or infrastructure');
+        Assert::thatAll([$this->src_dir, $this->tests_dir])->minLength(1);
     }
     
 }

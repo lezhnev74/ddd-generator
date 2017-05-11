@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace DDDGen;
 
@@ -10,12 +10,6 @@ use DDDGen\VO\Primitive;
 
 final class Generator
 {
-    /** @var  string */
-    private $src_dir;
-    /** @var  string */
-    private $test_dir;
-    /** @var  FQCN */
-    private $test_qcn;
     /** @var  Layer[] */
     private $layers;
     /** @var  Primitive[] */
@@ -26,54 +20,20 @@ final class Generator
     /**
      * Generator constructor.
      *
-     * @param string      $src_dir
-     * @param string      $test_dir
-     * @param FQCN        $base_qcn
-     * @param FQCN        $test_qcn
      * @param Layer[]     $layers
      * @param Primitive[] $primitives
      */
-    public function __construct(
-        string $src_dir,
-        string $test_dir,
-        FQCN $test_qcn,
-        array $layers,
-        array $primitives
-    ) {
-        $this->src_dir    = $src_dir;
-        $this->test_dir   = $test_dir;
-        $this->test_qcn   = $test_qcn;
+    public function __construct(array $layers, array $primitives)
+    {
         $this->layers     = $layers;
         $this->primitives = $primitives;
         
         $this->validate();
     }
     
-    /**
-     * @return string
-     */
-    public function getSrcDir(): string
-    {
-        return $this->src_dir;
-    }
     
-    /**
-     * @return string
-     */
-    public function getTestDir(): string
+    private function validate()
     {
-        return $this->test_dir;
-    }
-    
-    
-    private
-    function validate()
-    {
-        Assert::thatAll([
-                            $this->src_dir,
-                            $this->test_dir,
-                        ])->minLength(1);
-        
         Assert::thatAll($this->primitives)->isInstanceOf(Primitive::class);
         Assert::thatAll($this->layers)->isInstanceOf(Layer::class);
         
@@ -91,15 +51,11 @@ final class Generator
      *
      * @return array of generated files
      */
-    public
-    function generate(
-        $layer_name,
-        $primitive_name,
-        FQCN $qcn
-    ): array {
-        
+    public function generate($layer_name, $primitive_name, FQCN $qcn): array
+    {
         $generated_stubs = $this->generateDry($layer_name, $primitive_name, $qcn);
-        foreach($generated_stubs as $target_path => $stub_file) {
+        
+        foreach ($generated_stubs as $target_path => $stub_file) {
             $this->writeStubs($target_path, $stub_file);
         }
         
@@ -123,8 +79,8 @@ final class Generator
         $this->updatePlaceholders(
             [
                 // default for given layer
-                "/*<BASE_TEST_NAMESPACE>*/" => $this->test_qcn->append($layer->getDir())->getFqcn(),
-                "/*<BASE_SRC_NAMESPACE>*/" => $layer->getBaseFqcn()->getFqcn(),
+                "/*<BASE_TEST_NAMESPACE>*/" => $layer->getTestsFqcn()->getFqcn(),
+                "/*<BASE_SRC_NAMESPACE>*/" => $layer->getSrcFqcn()->getFqcn(),
                 
                 "/*<LAYER>*/" => $layer->getName(),
                 "/*<PRIMITIVE>*/" => $primitive_name,
@@ -150,30 +106,25 @@ final class Generator
      *
      * @return array [final_path => stub_file]
      */
-    private
-    function generateStubs(
-        $primitive,
-        $layer,
-        $qcn
-    ): array {
+    private function generateStubs($primitive, $layer, $qcn): array
+    {
         $generated_stubs = [];
         
         //
         // 1. SRC stubs
         //
-        foreach($primitive->getSrcStubs() as $filename => $stub) {
+        foreach ($primitive->getSrcStubs() as $filename => $stub) {
             
             $filename = $this->replacePlaceholdersInText($filename);
-            if(!preg_match("#\\.php$#", $filename)) {
+            if (!preg_match("#\\.php$#", $filename)) {
                 $filename .= ".php";
             }
             
-            $target_path = $this->src_dir
-                           . DIRECTORY_SEPARATOR . $layer->getDir()
+            $target_path = $layer->getSrcDir()
                            . DIRECTORY_SEPARATOR . $qcn->toPSR4Path()
                            . DIRECTORY_SEPARATOR . $filename;
             
-            $generated_stubs[ $target_path ] = $stub;
+            $generated_stubs[$target_path] = $stub;
             
         }
         
@@ -181,19 +132,18 @@ final class Generator
         //
         // 2. TEST stubs
         //
-        foreach($primitive->getTestStubs() as $filename => $stub) {
+        foreach ($primitive->getTestStubs() as $filename => $stub) {
             
             $filename = $this->replacePlaceholdersInText($filename);
-            if(!preg_match("#\\.php$#", $filename)) {
+            if (!preg_match("#\\.php$#", $filename)) {
                 $filename .= ".php";
             }
             
-            $target_path = $this->test_dir
-                           . DIRECTORY_SEPARATOR . $layer->getDir()
+            $target_path = $layer->getTestsDir()
                            . DIRECTORY_SEPARATOR . $qcn->toPSR4Path()
                            . DIRECTORY_SEPARATOR . $filename;
             
-            $generated_stubs[ $target_path ] = $stub;
+            $generated_stubs[$target_path] = $stub;
         }
         
         return $generated_stubs;
@@ -214,8 +164,8 @@ final class Generator
         
         
         $this->updatePlaceholders([
-                                      "/*<FILENAME>*/" => preg_replace("#\.php$#", "", basename($target_path)),
-                                  ]);
+            "/*<FILENAME>*/" => preg_replace("#\.php$#", "", basename($target_path)),
+        ]);
         $content = $this->replacePlaceholdersInText(file_get_contents($source_file));
         
         
@@ -229,14 +179,14 @@ final class Generator
      *
      * @param string $name
      *
+     * @throws \Exception
+     *
      * @return Primitive
      */
-    private
-    function getPrimitiveByName(
-        string $name
-    ): Primitive {
-        foreach($this->primitives as $primitive) {
-            if($primitive->getName() == $name) {
+    private function getPrimitiveByName(string $name): Primitive
+    {
+        foreach ($this->primitives as $primitive) {
+            if ($primitive->getName() == $name) {
                 return $primitive;
             }
         }
@@ -252,10 +202,8 @@ final class Generator
      *
      * @return void
      */
-    private
-    function updatePlaceholders(
-        array $placeholders
-    ): void {
+    private function updatePlaceholders(array $placeholders): void
+    {
         Assert::thatAll($placeholders)->string();
         
         $this->placeholders = array_merge($this->placeholders, $placeholders);
@@ -269,10 +217,8 @@ final class Generator
      *
      * @return string
      */
-    private
-    function replacePlaceholdersInText(
-        $text
-    ): string {
+    private function replacePlaceholdersInText($text): string
+    {
         $text = str_replace(array_keys($this->placeholders), $this->placeholders, $text);
         
         return $text;
@@ -281,8 +227,8 @@ final class Generator
     
     private function getLayerByName(string $name): Layer
     {
-        foreach($this->layers as $layer) {
-            if($layer->getName() == $name) {
+        foreach ($this->layers as $layer) {
+            if ($layer->getName() == $name) {
                 return $layer;
             }
         }
@@ -290,72 +236,3 @@ final class Generator
         throw new \Exception("Layer with name $name was not found");
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
