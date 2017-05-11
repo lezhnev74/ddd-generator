@@ -1,5 +1,7 @@
-# DDD Generator for 3-layered applications
-When developing in a clean and decoupled way, you have to deal with many OO interfaces and objects. Where you had one object in RAPID development flow, you have plenty of objects in DDD flow. To speed things up I use this tool to generate primitives related to ServiceBus pattern, CQRS pattern and clean architecture.
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/lezhnev74/ddd-generator/master/LICENSE)
+
+# DDD Classes Generator for 3-layered Application
+When you develop clean and decoupled app you have to deal with many interfaces and objects. Where you had one object in RAPID development flow, you have plenty of objects in DDD flow. To speed things up I use this tool to generate primitives related to ServiceBus pattern, CQRS pattern and Clean Architecture.
 If you interested - [I blogged about ideas behind this generator](https://lessthan12ms.com/one-step-towards-clean-architecture-from-rapid-application-development/).
  
 **Note:** I use PSR-4 so any folder inheritance leads to namespace inheritance (and vice versa). And also type of slashes is irrelevant - \ and / will do the same.
@@ -35,18 +37,27 @@ composer require lezhnev74/ddd-generator
 ## Usage
 ```
 #Comman API
-bin/dddtool generate <primitive> <psr-4-namespaced-name>
+bin/dddtool generate <layer_name> <primitive_type> <primitive_namespace>
 ```
+
+Command arguments:
+
+* `<layer_name>` - 3 types available: "app", "domain" or "infrastructure"
+* `<primitive_type>` - "command" or anything you set up in the config file
+* `<primitive_namespace>` - psr-4 inspired path to the file, which also serves as a namespace. F.e. "Account/Commands/SignUp"
+
+
+More usage examples:
 
 ```
 # Command generation
-bin/dddtool generate command Account\Commands\SignUp
- 
-# Quary generation in given PSR-4 folder
-bin/dddtool generate query Queries\Account\SignedUpAccounts
- 
-# Event generation
-bin/dddtool generate event Account\Events\SignedUp -c
+bin/dddtool generate domain command Account\Commands\SignUp
+  
+# Specify config
+bin/dddtool generate app event Http\Event\HttpRequestRecieved -c path/to/config.php
+
+# Run with no interaction (mind -y flag)
+bin/dddtool generate app event Http\Event\HttpRequestRecieved -y
   
 ```
 
@@ -116,14 +127,27 @@ $config = [
 ```
 
 ## Templates
-Each primitive can have multiple templates. F.e. command has command and handler templates, query has request, response and handler templates. Event will only have event template and test. So configuration controls which template to generate in the folder.
+Each primitive can have multiple templates (stubs). F.e. command has command and handler templates, query has request, response and handler templates. Event will only have event template and test. So configuration explicitly declares which files to generate and in which folder.
  
 Template support few placeholders which reflects user input:
 * `/*<BASE_SRC_NAMESPACE>*/` - looks like `\App` (each layer may have different one)
 * `/*<BASE_TEST_NAMESPACE>*/` - looks like `\Domain\Tests`  (each layer may have different one)
 * `/*<LAYER>*/` - app or domain or infrastructure
 * `/*<PRIMITIVE>*/` - the name of the primitive f.e. `event` or `command`
-* `/*<PSR4_NAMESPACE>*/` - looks like `Account\Command\SignUp`, the 2nd argument at generate command
+* `/*<PSR4_NAMESPACE>*/` - looks like `Account\Command\SignUp`, see <primitive_namespace> argument
 * `/*<PSR4_NAMESPACE_BASE>*/` - looks like `Account\Command` (without final part)
 * `/*<PSR4_NAMESPACE_LAST>*/` f.e. `SignedUp` (just final part)
 * `/*<FILENAME>*/` f.e. `SignedUpCommand` (the final filename for this stub)
+
+## How it works
+Take for example the config file shown above and let's explain this command:
+`bin/dddtool generate domain command Account\Commands\SignUp`
+
+The script will do this:
+* first, command will detect the layer for which you want to generate new files. In our case it is "domain"
+* then layer's config is detected 
+* then command analyze the primitive name, in our case it is "command"
+* then config for this primitive is being detected
+* then for each stub in the config a new file is prepared. For example, test stub with name `/*<PSR4_NAMESPACE_LAST>*/CommandTest` will actually be created in file `__DIR__ . "/tmp/tests/Account/Commands/SignUp/SignUpCommandTest.php"`.
+* user sees the list of files which are supposed to be generated
+* after confirmation real files are generated and put to file system.
